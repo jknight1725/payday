@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require_relative 'record_pad'
+require_relative 'player_prompt'
 class Player
+  include PlayerPrompt
   attr_accessor :wallet, :deals, :car_ins, :med_ins, :position, :lotto
   attr_reader :bank, :name
 
@@ -17,13 +19,13 @@ class Player
   end
 
   def withdrawal
-    puts "Enter an amount to withdraw:\t"
+    puts PlayerPrompt.withdrawal
     amount = gets.to_i
     bank_withdrawal amount
   end
 
   def deposit
-    puts "Wallet: #{wallet}\nDeposit Amount:\t"
+    puts PlayerPrompt.deposit(wallet)
     cash = [0, gets.to_i].max
     cash > wallet ? bank_deposit(wallet) : bank_deposit(cash)
   end
@@ -45,8 +47,6 @@ class Player
     "Deals\n#{deals.join("\n")}"
   end
 
-  #private
-
   def bank_withdrawal(cash)
     bank.withdrawal cash
     self.wallet += cash
@@ -64,7 +64,7 @@ class Player
   def process_letter(letter)
     type = letter.type
     cost = letter.cost
-    puts "#{name} You got mail! #{letter}"
+    puts PlayerPrompt.letter(name, letter)
     case type
     when 'bill'
       self.wallet -= cost
@@ -87,47 +87,60 @@ class Player
 
   def process_deal(deal)
     price = deal.cost
-    puts "#{name} You got a Deal!\n#{deal}" \
-         "Press 1 to buy for #{price} (loan will be taken if you cannot afford)\n" \
-         'Press any other key to decline'
-    opt_in = gets.to_i
-    if opt_in == 1
-      bank_withdrawal price if wallet < price
-      self.wallet -= price
+    puts PlayerPrompt.deal(name, deal)
+    if confirm_purchase?(price)
+      make_purchase(price)
       deals << deal
+      nil
+    end
+  end
+
+  def sell_deal
+    unless deals.empty?
+      best_to_sell = deals.max_by(&:value)
+      self.wallet += best_to_sell.value
+      deals.delete(best_to_sell)
+      puts PlayerPrompt.deal_sold(name, best_to_sell)
+      best_to_sell
     end
   end
 
   def buy_insurance?(insurance)
     plan, price = insurance
-    puts "Would you like to buy #{plan} for #{price} " \
-    'Press 1 to buy insurance, any other key to decline'
-    opt_in = gets.to_i
-    if opt_in == 1
-      bank_withdrawal price if wallet < price
-      self.wallet -= price
+    puts PlayerPrompt.insurance(name, plan)
+    if confirm_purchase?(price)
+      make_purchase(price)
       self.med_ins = true if plan.equal? 'med_insurance'
       self.car_ins = true if plan.equal? 'car_insurance'
     end
   end
 
   def use_swellfare?
-    puts "Roll a 5 or 6 win 10 times your bet! Otherwise you lose your bet\n" \
-      "Enter 1 to use swellfare, any other key to decline\n"
-    opt_in = gets.to_i
-    if opt_in == 1
-      puts "Wallet: #{wallet}\nBet Amount(max 100):\t"
+    puts PlayerPrompt.swellfare
+    if gets.to_i == 1
+      puts PlayerPrompt.swellfare_bet(wallet)
       bet = gets.to_i
       bet = 0 if bet.negative? || wallet < bet
       bet = 100 if bet > 100
-      self.wallet += swellfare bet
+      self.wallet += swellfare(bet)
     end
   end
 
   def swellfare(bet)
     value = roll
-    puts "You bet #{bet} You rolled a #{value}\n"
+    puts PlayerPrompt.swellfare_result(value, bet)
     value > 4 ? bet * 10 : -bet
+  end
+
+  def confirm_purchase?(price)
+    puts PlayerPrompt.purchase(price)
+    confirm = gets.to_i
+    confirm == 1
+  end
+
+  def make_purchase(price)
+    bank_withdrawal price if wallet < price
+    self.wallet -= price
   end
 end
 # p = Player.new('p')
@@ -135,7 +148,7 @@ end
 # bank test
 # p.withdrawal
 # p.deposit
-# puts p"
+# puts p
 
 # move test
 # puts p.position
