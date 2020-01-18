@@ -16,6 +16,12 @@ class RecordPad
     savings > cash ? self.savings -= cash : overdraft(cash)
   end
 
+  def apply_interest(wallet)
+    wallet -= (loan * 0.2)
+    wallet += (savings * 0.1)
+    wallet.to_i
+  end
+
   def to_s
     "Bank Statement\nSavings\t#{savings}\nLoan\t#{loan}"
   end

@@ -4,6 +4,7 @@ module PlayerPrompt
   end
 
   def self.deposit(wallet)
+    "Enter an amount to put towards loans or savings:\n"\
     "Wallet: #{wallet}\nDeposit Amount:\t"
   end
 
@@ -43,6 +44,17 @@ module PlayerPrompt
 
   def self.swellfare_result(value, bet)
     "You bet #{bet} You rolled a #{value}\n"
+  end
+
+  def self.payday(player)
+    "It's payday! 325 credits applied to your wallet\n"\
+    "10 percent of any savings will be credited to your wallet as interest\n"\
+    "20 percent of any loans will be deducted from your wallet as interest\n"\
+    "#{player}"
+  end
+
+  def self.end_payday(player)
+    "End of payday! #{player}"
   end
 
 end

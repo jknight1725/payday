@@ -4,7 +4,7 @@ require_relative 'record_pad'
 require_relative 'player_prompt'
 class Player
   include PlayerPrompt
-  attr_accessor :wallet, :deals, :car_ins, :med_ins, :position, :lotto
+  attr_accessor :wallet, :deals, :car_ins, :med_ins, :position, :lotto, :months_played
   attr_reader :bank, :name
 
   def initialize(name)
@@ -16,6 +16,7 @@ class Player
     @med_ins = false
     @car_ins = false
     @deals = []
+    @months_played = 0
   end
 
   def withdrawal
@@ -30,11 +31,16 @@ class Player
     cash > wallet ? bank_deposit(wallet) : bank_deposit(cash)
   end
 
-  def move
-    amount = roll
-    position + amount > 31 ? self.position = 0 : self.position += amount
-    self.position = 0 if position.negative?
+  def move(distance)
+    self.position = 0 if position == 31
+    position + distance > 31 ? self.position = 31 : self.position += distance
+    month_elapsed if position == 31
     position
+  end
+
+  def month_elapsed
+    self.months_played += 1
+    self.lotto = 0
   end
 
   def score
@@ -42,9 +48,10 @@ class Player
   end
 
   def to_s
+    "Here is your bank statement for the month\n" \
     "#{name} #{bank}\nWallet:\t#{wallet}\nTotal:\t#{score}\n" \
     "med insurance:\t#{med_ins}\ncar insurance:\t#{car_ins}\n" \
-    "Deals\n#{deals.join("\n")}"
+    "Deals:\n#{deals.join("\n")}\n"
   end
 
   def bank_withdrawal(cash)
@@ -57,31 +64,29 @@ class Player
     self.wallet -= cash
   end
 
-  def roll
-    rand(1..6)
-  end
-
   def process_letter(letter)
     type = letter.type
     cost = letter.cost
     puts PlayerPrompt.letter(name, letter)
     case type
     when 'bill'
-      self.wallet -= cost
+      make_purchase cost
     when 'med_bill'
-      self.wallet -= cost unless med_ins
+      make_purchase cost unless med_ins
     when 'car_bill'
-      self.wallet -= cost unless car_ins
+      make_purchase cost unless car_ins
     when 'windfall'
       self.wallet += cost
     when 'lottery'
       self.lotto += cost
-    when 'car_insurance'
-      buy_insurance? [type, cost] unless car_ins
     when 'med_insurance'
       buy_insurance? [type, cost] unless med_ins
+    when 'car_insurance'
+      buy_insurance? [type, cost] unless car_ins
     when 'swellfare'
       use_swellfare? if bank.loan.positive?
+    else
+      nil
     end
   end
 
@@ -91,8 +96,14 @@ class Player
     if confirm_purchase?(price)
       make_purchase(price)
       deals << deal
-      nil
     end
+    nil
+  end
+
+  def confirm_purchase?(price)
+    puts PlayerPrompt.purchase(price)
+    confirm = gets.to_i
+    confirm == 1
   end
 
   def sell_deal
@@ -127,34 +138,21 @@ class Player
   end
 
   def swellfare(bet)
-    value = roll
-    puts PlayerPrompt.swellfare_result(value, bet)
-    value > 4 ? bet * 10 : -bet
-  end
-
-  def confirm_purchase?(price)
-    puts PlayerPrompt.purchase(price)
-    confirm = gets.to_i
-    confirm == 1
+    roll = rand(1..6)
+    puts PlayerPrompt.swellfare_result(roll, bet)
+    roll > 4 ? bet * 10 : -bet
   end
 
   def make_purchase(price)
     bank_withdrawal price if wallet < price
     self.wallet -= price
   end
+
+  def payday
+    self.wallet += 325
+    self.wallet = bank.apply_interest(wallet)
+    puts PlayerPrompt.payday(self)
+    deposit
+    puts PlayerPrompt.end_payday(self)
+  end
 end
-# p = Player.new('p')
-
-# bank test
-# p.withdrawal
-# p.deposit
-# puts p
-
-# move test
-# puts p.position
-# p.move 31
-# puts p.position
-# p.move 1
-# puts p.position
-# p.move -1
-# puts p.position

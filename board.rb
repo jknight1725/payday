@@ -6,8 +6,8 @@
 # optional keys - amount, name
 # example tile {effect: 'mail' amount: 2}
 module Board
-  # TODO: merge default_tiles with given args hash for custom boards
-  def self.tiles
+  # TODO: board factory
+  def self.default_tiles
     @default_tiles
   end
 
