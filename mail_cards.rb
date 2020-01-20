@@ -9,7 +9,7 @@ module MailCards
     end
 
     def to_s
-      "#{type.capitalize} of #{cost}"
+      "#{type.capitalize} for #{cost}"
     end
   end
 
@@ -36,26 +36,26 @@ module MailCards
 
   def self.med_bill
     med_bills = [15, 15, 20, 25, 85, 150, 150]
-    Card.new(type: 'med_bill', cost: med_bills.sample)
+    Card.new(type: 'med bill', cost: med_bills.sample)
   end
 
   def self.car_bill
     car_bills = [25, 50, 50, 100, 100, 150]
-    Card.new(type: 'car_bill', cost: car_bills.sample)
+    Card.new(type: 'car bill', cost: car_bills.sample)
   end
 
   def self.no_effect
-    Card.new(type: 'no_effect', cost: 0)
+    Card.new(type: 'no effect', cost: 0)
   end
 
   def self.car_insurance
     car_insurance = [200]
-    Card.new(type: 'car_insurance', cost: car_insurance.sample)
+    Card.new(type: 'car insurance', cost: car_insurance.sample)
   end
 
   def self.med_insurance
     med_insurance = [150]
-    Card.new(type: 'med_insurance', cost: med_insurance.sample)
+    Card.new(type: 'med insurance', cost: med_insurance.sample)
   end
 
   def self.swellfare
@@ -82,16 +82,8 @@ module MailCards
       med_insurance
     when 63..64
       swellfare
+    else
+      nil
     end
   end
 end
-
-# bills               23/64
-# lotterry            4/64
-# windfall            3/64
-# med_bill            7/64
-# car_bill            6/64
-# no_effect           13/64
-# car_insurance       3/64
-# med_insurance       3/64
-# swellfare           2/64

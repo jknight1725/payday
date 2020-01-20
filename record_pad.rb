@@ -31,10 +31,6 @@ class RecordPad
   def overdraft(cash)
     cash -= savings
     self.savings = 0
-    take_loan(cash)
-  end
-
-  def take_loan(cash)
     self.loan += cash
   end
 
@@ -48,9 +44,3 @@ class RecordPad
     deposit(cash)
   end
 end
-# rp = RecordPad.new
-# rp.deposit 1000
-# rp.withdrawal 1500
-# puts [rp.savings, rp.loan]
-# rp.deposit 1000
-# puts [rp.savings, rp.loan]

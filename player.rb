@@ -13,16 +13,16 @@ class Player
     @wallet = 325
     @lotto = 0
     @position = 0
+    @months_played = 0
     @med_ins = false
     @car_ins = false
     @deals = []
-    @months_played = 0
   end
 
   def withdrawal
     puts PlayerPrompt.withdrawal
-    amount = gets.to_i
-    bank_withdrawal amount
+    cash = gets.to_i
+    bank_withdrawal cash
   end
 
   def deposit
@@ -48,7 +48,7 @@ class Player
   end
 
   def to_s
-    "Here is your bank statement for the month\n" \
+    "Here is your bank statement for month #{months_played}\n" \
     "#{name} #{bank}\nWallet:\t#{wallet}\nTotal:\t#{score}\n" \
     "med insurance:\t#{med_ins}\ncar insurance:\t#{car_ins}\n" \
     "Deals:\n#{deals.join("\n")}\n"
@@ -71,64 +71,63 @@ class Player
     case type
     when 'bill'
       make_purchase cost
-    when 'med_bill'
+    when 'med bill'
       make_purchase cost unless med_ins
-    when 'car_bill'
+    when 'car bill'
       make_purchase cost unless car_ins
     when 'windfall'
       self.wallet += cost
     when 'lottery'
       self.lotto += cost
-    when 'med_insurance'
-      buy_insurance? [type, cost] unless med_ins
-    when 'car_insurance'
-      buy_insurance? [type, cost] unless car_ins
+    when 'med insurance'
+      buy_insurance?(cost, type) unless med_ins
+    when 'car insurance'
+      buy_insurance?(cost, type) unless car_ins
     when 'swellfare'
-      use_swellfare? if bank.loan.positive?
+      use_swellfare? if score.negative?
     else
       nil
     end
   end
 
-  def process_deal(deal)
-    price = deal.cost
-    puts PlayerPrompt.deal(name, deal)
-    if confirm_purchase?(price)
-      make_purchase(price)
-      deals << deal
-    end
-    nil
+  def confirm_purchase?(price)
+    PlayerPrompt.confirm(PlayerPrompt.purchase(price))
   end
 
-  def confirm_purchase?(price)
-    puts PlayerPrompt.purchase(price)
-    confirm = gets.to_i
-    confirm == 1
+  def make_purchase(price)
+    bank_withdrawal price if wallet < price
+    self.wallet -= price
+  end
+
+  def process_deal(deal)
+    puts PlayerPrompt.deal(name, deal, deals.length)
+    if confirm_purchase?(deal.cost)
+      make_purchase(deal.cost)
+      self.deals << deal
+    end
+    nil
   end
 
   def sell_deal
     unless deals.empty?
       best_to_sell = deals.max_by(&:value)
       self.wallet += best_to_sell.value
-      deals.delete(best_to_sell)
+      self.deals.delete(best_to_sell)
       puts PlayerPrompt.deal_sold(name, best_to_sell)
       best_to_sell
     end
   end
 
-  def buy_insurance?(insurance)
-    plan, price = insurance
-    puts PlayerPrompt.insurance(name, plan)
+  def buy_insurance?(price, plan)
     if confirm_purchase?(price)
       make_purchase(price)
-      self.med_ins = true if plan.equal? 'med_insurance'
-      self.car_ins = true if plan.equal? 'car_insurance'
+      self.med_ins = true if plan.equal? 'med insurance'
+      self.car_ins = true if plan.equal? 'car insurance'
     end
   end
 
   def use_swellfare?
-    puts PlayerPrompt.swellfare
-    if gets.to_i == 1
+    if PlayerPrompt.confirm(PlayerPrompt.swellfare)
       puts PlayerPrompt.swellfare_bet(wallet)
       bet = gets.to_i
       bet = 0 if bet.negative? || wallet < bet
@@ -143,15 +142,11 @@ class Player
     roll > 4 ? bet * 10 : -bet
   end
 
-  def make_purchase(price)
-    bank_withdrawal price if wallet < price
-    self.wallet -= price
-  end
-
   def payday
     self.wallet += 325
     self.wallet = bank.apply_interest(wallet)
-    puts PlayerPrompt.payday(self)
+    puts PlayerPrompt.payday(name)
+    puts bank
     deposit
     puts PlayerPrompt.end_payday(self)
   end

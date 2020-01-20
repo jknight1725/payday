@@ -17,11 +17,8 @@ class DealDeck
 
   def draw_card
     card_drawn = deck.sample
-    card = cards[card_drawn]
-    deck.delete(card_drawn)
+    self.deck.delete(card_drawn)
     reset_deck if deck.empty?
-    card
+    cards[card_drawn]
   end
 end
-# deal_pile = DealDeck.new
-# 18.times { puts deal_pile.draw_card }

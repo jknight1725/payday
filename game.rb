@@ -4,41 +4,55 @@ require_relative 'deal_deck'
 require_relative 'mail_deck'
 require_relative 'player'
 require_relative 'board'
+require 'colorize'
 
 class Game
 
   attr_accessor :players, :town_pot, :score_board
   attr_reader :mail_deck, :deal_deck, :board, :months_to_play
 
-  def initialize(args)
+  def initialize(args={})
     args = defaults.merge args
     @players = args[:players]
     @mail_deck = args[:mail_deck]
     @deal_deck = args[:deal_deck]
+    @board =  args[:game_board].board
     @months_to_play = args[:months]
-    @board =  args[:game_board]
     @town_pot = 0
     @score_board = []
   end
 
+  def defaults
+    {
+        players: [Player.new('James'), Player.new('Megan')],
+        mail_deck: MailDeck.new,
+        deal_deck: DealDeck.new,
+        game_board: Board.new,
+        months: 1
+    }
+  end
+
   def run
-    players.each(&method(:turn))
-    players.empty? ? nil : run
+    players.each(&method(:turn)) until players.empty?
+    results
   end
 
   def turn(player)
     roll = rand(1..6)
-    pot_winner(player) if roll == 6 && town_pot.positive?
     position = player.move(roll)
+    puts "\n#{player.name} your turn!\n\nYou rolled a #{roll} landing on day #{position}\n"
+    show_board(position)
+    pot_winner(player) if roll == 6 && town_pot.positive?
     tile = board[position]
-    puts "#{player.name} rolled a #{roll} landed on day #{position}"
     action(tile, player)
+    puts "\nEnd of your turn #{player.name}!\n"
     game_over(player) if player.months_played == months_to_play
   end
 
   def game_over(player)
     score_board << {name: player.name, score: player.score}
-    players.delete(player)
+    puts "Game Over #{player.name} you played all #{months_to_play} months\nYour score:\t#{player.score}\n"
+    self.players.delete(player)
   end
 
   def results
@@ -94,6 +108,7 @@ class Game
   end
 
   def dst
+    puts "Daylight savings time! All players move back one space!\n"
     players.each do |player|
       player.position -= 1 unless player.position == 31
       tile = board[player.position]
@@ -135,14 +150,14 @@ class Game
     mail_deck.draw_card
   end
 
-  def defaults
-    {
-      players: [Player.new('James'), Player.new('Megan')],
-      mail_deck: MailDeck.new,
-      deal_deck: DealDeck.new,
-      months: 6,
-      game_board: Board.default_tiles
-    }
+  def show_board(position)
+    newline_if_sunday = ->(day){puts "\n" if (day+1)%7==0 || day == 31}
+    player_at_pos = ->(day){day == position}
+    board.each do |k,v|
+      day = "#{k}\t #{v[:effect]}".ljust(14, " ")
+      print player_at_pos[k] ?  day.red :  day
+      newline_if_sunday[k]
+      end
   end
 
   def positive
@@ -155,11 +170,5 @@ class Game
 
 end
 
-g = Game.new({})
-# g.turn
-# puts g.players
-#puts g.action(g.board[4], g.players[0])
-#puts g.action(g.board[31], g.players[0])
-unless g.run
-  g.results
-end
+Game.new.run
+
