@@ -3,9 +3,24 @@
 class RecordPad
   attr_accessor :loan, :savings
 
-  def initialize
-    @loan = 0
-    @savings = 0
+  def initialize(args={})
+    args = defaults.merge args
+    @loan = args[:loan]
+    @savings = args[:savings]
+  end
+
+  def defaults
+    {
+        loan: 0,
+        savings: 0
+    }
+  end
+
+  def to_h
+    {
+        loan: loan,
+        savings: savings
+    }
   end
 
   def deposit(cash)

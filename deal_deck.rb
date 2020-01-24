@@ -6,9 +6,24 @@ class DealDeck
   attr_reader :cards
   attr_accessor :deck
 
-  def initialize
-    @cards = DealCards.cards
-    @deck = reset_deck
+  def initialize(args={})
+    args = defaults.merge args
+    @cards = args[:cards]
+    @deck = args[:deck]
+  end
+
+  def defaults
+    {
+        cards: DealCards.cards,
+        deck: DealCards.cards.keys
+    }
+  end
+
+  def to_h
+    {
+        cards: cards,
+        deck: deck
+    }
   end
 
   def reset_deck

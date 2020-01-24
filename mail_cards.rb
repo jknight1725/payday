@@ -3,9 +3,17 @@
 module MailCards
   class Card
     attr_reader :type, :cost
-    def initialize(args)
+    def initialize(args={})
+      args = defaults.merge args
       @type = args[:type]
       @cost = args[:cost]
+    end
+
+    def defaults
+      {
+          type: 'no effect',
+          cost: 0
+      }
     end
 
     def to_s

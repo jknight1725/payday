@@ -3,15 +3,25 @@
 module DealCards
   class Card
     attr_reader :name, :cost, :value, :commission
-    def initialize(args)
+    def initialize(args={})
+      args = defaults.merge args
       @name = args[:name]
       @cost = args[:cost]
       @value = args[:value]
       @commission = args[:commission]
     end
 
+    def defaults
+      {
+          name: 'Deal',
+          cost: 100,
+          value: 1000,
+          commission: 10
+      }
+    end
+
     def to_s
-      "#{name}\nCost:\t#{cost} Value:\t#{value} Commission:  #{commission}\n"
+      "#{name}\nCost:\t#{cost} Value:\t#{value} Commission:\t#{commission}\n"
     end
   end
 
@@ -38,4 +48,5 @@ module DealCards
                              commission: rand(1..10) * 10)
     }.freeze
   end
+
 end

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
-
+require_relative 'board_factory'
 require_relative 'deal_deck'
 require_relative 'mail_deck'
 require_relative 'player'
-require_relative 'board'
+require_relative 'game_prompt'
 require 'colorize'
 
 class Game
-
+  include GamePrompt
   attr_accessor :players, :town_pot, :score_board
   attr_reader :mail_deck, :deal_deck, :board, :months_to_play
 
@@ -16,7 +16,7 @@ class Game
     @players = args[:players]
     @mail_deck = args[:mail_deck]
     @deal_deck = args[:deal_deck]
-    @board =  args[:game_board].board
+    @board =  args[:game_board]
     @months_to_play = args[:months]
     @town_pot = 0
     @score_board = []
@@ -24,11 +24,23 @@ class Game
 
   def defaults
     {
-        players: [Player.new('James'), Player.new('Megan')],
+        players: [Player.new(name: 'James'), Player.new(name: 'Megan')],
         mail_deck: MailDeck.new,
         deal_deck: DealDeck.new,
-        game_board: Board.new,
-        months: 1
+        game_board: BoardFactory.for('default'),
+        months: 6
+    }
+  end
+
+  def to_h
+    {
+        players: players,
+        mail_deck: mail_deck,
+        deal_deck: deal_deck.to_h,
+        board: board,
+        months_to_play: months_to_play,
+        town_pot: town_pot,
+        score_board: score_board
     }
   end
 
@@ -38,25 +50,29 @@ class Game
   end
 
   def turn(player)
-    roll = rand(1..6)
-    position = player.move(roll)
-    puts "\n#{player.name} your turn!\n\nYou rolled a #{roll} landing on day #{position}\n"
-    show_board(position)
-    pot_winner(player) if roll == 6 && town_pot.positive?
-    tile = board[position]
+    tile = move(player)
     action(tile, player)
-    puts "\nEnd of your turn #{player.name}!\n"
+    GamePrompt.end_turn(player.name)
     game_over(player) if player.months_played == months_to_play
+  end
+
+  def move(player)
+    value = rand(1..6)
+    position = player.move(value)
+    puts GamePrompt.roll(player.name, value, position)
+    show_board(position)
+    pot_winner(player) if value == 6 && town_pot.positive?
+    board[position]
   end
 
   def game_over(player)
     score_board << {name: player.name, score: player.score}
-    puts "Game Over #{player.name} you played all #{months_to_play} months\nYour score:\t#{player.score}\n"
+    puts GamePrompt.game_over(player.name, months_to_play, player.score)
     self.players.delete(player)
   end
 
   def results
-    puts "\nFinal Scores!\n"
+    puts GamePrompt.results
     score_board.sort_by {|h| h[:score]}.reverse_each {|p| puts "#{p[:name]}\t#{p[:score]}" }
   end
 
@@ -108,7 +124,7 @@ class Game
   end
 
   def dst
-    puts "Daylight savings time! All players move back one space!\n"
+    puts GamePrompt.dst
     players.each do |player|
       player.position -= 1 unless player.position == 31
       tile = board[player.position]
@@ -169,6 +185,4 @@ class Game
   end
 
 end
-
-Game.new.run
 

@@ -7,16 +7,45 @@ class Player
   attr_accessor :wallet, :deals, :car_ins, :med_ins, :position, :lotto, :months_played
   attr_reader :bank, :name
 
-  def initialize(name)
-    @name = name
-    @bank = RecordPad.new
-    @wallet = 325
-    @lotto = 0
-    @position = 0
-    @months_played = 0
-    @med_ins = false
-    @car_ins = false
-    @deals = []
+  def initialize(args={})
+    args = defaults.merge args
+    @name = args[:name]
+    @bank = args[:bank]
+    @wallet = args[:wallet]
+    @lotto = args[:lotto]
+    @position = args[:position]
+    @months_played = args[:months]
+    @med_ins = args[:med]
+    @car_ins = args[:car]
+    @deals = args[:deals]
+  end
+
+  def defaults
+    {
+        name: 'Player',
+        bank: RecordPad.new,
+        wallet: 325,
+        lotto: 0,
+        position: 0,
+        months: 0,
+        med: false,
+        car: false,
+        deals: []
+    }
+  end
+
+  def to_h
+    {
+        name: name,
+        bank: bank.to_h,
+        wallet: wallet,
+        lotto: lotto,
+        position: position,
+        months_played: months_played,
+        med: med_ins,
+        car: car_ins,
+        deals: deals
+    }
   end
 
   def withdrawal
@@ -48,8 +77,8 @@ class Player
   end
 
   def to_s
-    "Here is your bank statement for month #{months_played}\n" \
-    "#{name} #{bank}\nWallet:\t#{wallet}\nTotal:\t#{score}\n" \
+    "Here is your bank statement for month #{months_played} #{name} \n" \
+    "#{bank}\nWallet:\t#{wallet}\nTotal:\t#{score}\n" \
     "med insurance:\t#{med_ins}\ncar insurance:\t#{car_ins}\n" \
     "Deals:\n#{deals.join("\n")}\n"
   end
