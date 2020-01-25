@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'board_factory'
-require_relative 'deal_deck'
+require_relative 'deal_deck_factory'
 require_relative 'mail_deck'
 require_relative 'player'
 require_relative 'game_prompt'
@@ -26,8 +26,8 @@ class Game
     {
         players: [Player.new(name: 'James'), Player.new(name: 'Megan')],
         mail_deck: MailDeck.new,
-        deal_deck: DealDeck.new,
-        game_board: BoardFactory.for('default'),
+        deal_deck: DealDeckFactory::create('default'),
+        game_board: BoardFactory::create('default'),
         months: 6
     }
   end
@@ -115,7 +115,7 @@ class Game
   def financial_event(args)
     args[:player].wallet -= args[:amount] if args[:type] == negative
     args[:player].wallet += args[:amount] if args[:type] == positive
-    puts "#{args[:player].name} #{args[:type]} #{args[:amount]} for #{args[:name]}"
+    puts "#{args[:player].name} #{args[:type]} #{args[:amount]} for #{args[:name]}\n"
   end
 
   def buyer(player)

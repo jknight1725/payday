@@ -4,11 +4,13 @@ module DealCards
   class Card
     attr_reader :name, :cost, :value, :commission
     def initialize(args={})
+      min_100 = ->(x){ [100,x].max }
+      min_10 = ->(x){ [10,x].max }
       args = defaults.merge args
       @name = args[:name]
-      @cost = args[:cost]
-      @value = args[:value]
-      @commission = args[:commission]
+      @cost = min_100[args[:cost]]
+      @value = min_100[args[:value]]
+      @commission = min_10[args[:commission]]
     end
 
     def defaults

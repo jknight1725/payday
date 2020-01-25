@@ -1,6 +1,6 @@
 require_relative 'tile_factory'
 # To add a new way to construct a board
-#   - add case in self.for method
+#   - add case in self.create method
 #   - add case name in self.options
 #   - implement method in TileFactory
 module BoardFactory
@@ -9,14 +9,14 @@ module BoardFactory
     %w(default custom random)
   end
 
-  def self.for(type)
+  def self.create(type)
     case type
     when 'default'
-      TileFactory.default_tiles
+      TileFactory.create('default')
     when 'custom'
-      TileFactory.custom_tiles
+      TileFactory.create('custom')
     when 'random'
-      TileFactory.random_tiles
+      TileFactory.create('random')
     else
       raise NotImplementedError,
             "#{self} cannot respond to #{type}"

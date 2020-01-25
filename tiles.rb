@@ -69,7 +69,7 @@ module Tiles
   end
 
 
-
+# TODO find common behavior in classes/prompts and make modular
   def set_tile_amount(tile)
     puts "What is the amount/expense of #{tile[:effect]}\n"
     tile[:amount] = gets.to_i

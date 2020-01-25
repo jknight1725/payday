@@ -1,25 +1,39 @@
 require_relative 'game'
+require_relative 'player_factory'
+require_relative 'deal_deck_factory'
+# TODO loader class / isolate other behaviors
 module GameFactory
   extend self
 
-  def create_game
+  def create(type)
+    case type
+    when 'default'
+      Game.new
+    when 'custom'
+      Game.new(create_custom_game)
+    when 'load'
+      Game.new(load_game)
+    else
+    raise NotImplementedError,
+          "#{self} cannot respond to #{type}"
+    end
+  end
+
+  def create_custom_game
     options = {}
-    options[:players] = get_players
-    options[:game_board] = BoardFactory.for(get_board_type)
+    options[:players] = PlayerFactory::create_players
     options[:months] = get_months
-    options[:deal_deck] =  DealDeck.new(cards: (get_deal_deck custom_deck={}), deck: custom_deck.keys)
-    Game.new(options)
+    options[:game_board] = BoardFactory::create(board_type)
+    options[:deal_deck] =  DealDeckFactory::create('custom')
+    options
   end
 
-  def get_players
-    puts "How many players?"
-    n = gets.to_i
-    names = []
-    (1..n).each {|no| puts "Enter a name for Player ##{no}:\t "; names << gets.chomp  }
-    names.map {|name| Player.new(name: name) }
+  def load_game
+    {}
   end
 
-  def get_board_type
+  def board_type
+    puts "Pick a Board type"
     options = BoardFactory.options
     options.each_with_index { |opt, index | puts "#{index+1}\t#{opt}" }
 
@@ -41,25 +55,5 @@ module GameFactory
     months
   end
 
-  def get_deals(deck)
-    puts "Enter the name of the deal"
-    name = gets.chomp
-    puts "Enter the cost"
-    cost = gets.to_i
-    puts "Enter the value"
-    value = gets.to_i
-    puts "Enter the commission"
-    commission = gets.to_i
-    deck[name.to_sym] = DealCards::Card.new(name:name, cost:cost, value:value, commission: commission)
-  end
-
-  def deck_size
-    puts "How many custom deal cards?"
-    gets.to_i
-  end
-
-  def get_deal_deck(deck)
-    deck_size.times {get_deals deck}
-  end
-
 end
+

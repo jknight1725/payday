@@ -1,8 +1,6 @@
 # frozen_string_literal: true
-
 require_relative 'deal_cards'
 class DealDeck
-  include DealCards
   attr_reader :cards
   attr_accessor :deck
 

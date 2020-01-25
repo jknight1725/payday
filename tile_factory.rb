@@ -1,10 +1,25 @@
 require_relative 'Tiles'
+# TODO: refactor
 module TileFactory
   extend self
 
+  def create(type)
+    case type
+    when 'default'
+      default_tiles
+    when 'custom'
+      custom_tiles
+    when 'random'
+      random_tiles
+    else
+      raise NotImplementedError,
+            "#{self} cannot respond to #{type}"
+    end
+  end
+
   def custom_tiles
     tiles = {}
-    (1..30).each {|day| tiles[day] = get_tile(day) }
+    (1..31).each {|day| tiles[day] = get_tile(day) }
     tiles
   end
 
@@ -30,10 +45,11 @@ module TileFactory
 
   def random_tiles
     tiles = {}
-    (1..30).each do |day|
+    (1..31).each do |day|
       tile_choices = []
       Tiles.each do|tile|
         tile[:amount] = rand(1100 / 100) * 100 + 100 if tile.include? :amount
+        tile[:amount] = rand(1..5) if tile[:effect] == 'mail'
         tile[:name] = 'Taxes' if tile.include? :name
         tile_choices << tile
       end
