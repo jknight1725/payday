@@ -73,7 +73,7 @@ class Player
   end
 
   def score
-    wallet + bank.savings - bank.loan
+    wallet + bank.total
   end
 
   def to_s

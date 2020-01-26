@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module DealCards
   class Card
     attr_reader :name, :cost, :value, :commission
@@ -50,5 +49,4 @@ module DealCards
                              commission: rand(1..10) * 10)
     }.freeze
   end
-
 end

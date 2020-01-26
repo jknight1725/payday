@@ -1,17 +1,19 @@
 require_relative 'game'
 require_relative 'player_factory'
 require_relative 'deal_deck_factory'
+require_relative 'builder'
 # TODO loader class / isolate other behaviors
 module GameFactory
+  include Builder
   extend self
 
   def create(type)
     case type
-    when 'default'
+    when default
       Game.new
-    when 'custom'
+    when custom
       Game.new(create_custom_game)
-    when 'load'
+    when from_file
       Game.new(load_game)
     else
     raise NotImplementedError,
@@ -21,28 +23,15 @@ module GameFactory
 
   def create_custom_game
     options = {}
-    options[:players] = PlayerFactory::create_players
+    options[:players] = PlayerFactory.create_players
     options[:months] = get_months
-    options[:game_board] = BoardFactory::create(board_type)
-    options[:deal_deck] =  DealDeckFactory::create('custom')
+    options[:game_board] = BoardFactory.create(Builder.get_build_for('board'))
+    options[:deal_deck] =  DealDeckFactory.create(Builder.get_build_for('deal deck'))
     options
   end
 
   def load_game
     {}
-  end
-
-  def board_type
-    puts "Pick a Board type"
-    options = BoardFactory.options
-    options.each_with_index { |opt, index | puts "#{index+1}\t#{opt}" }
-
-    choice = -1
-    until (1..options.size).cover? choice
-      puts "Pick an option:\t"
-      choice = gets.to_i
-    end
-    options[choice-1]
   end
 
   def get_months

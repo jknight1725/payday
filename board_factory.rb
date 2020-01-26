@@ -1,22 +1,19 @@
-require_relative 'tile_factory'
-# To add a new way to construct a board
-#   - add case in self.create method
-#   - add case name in self.options
-#   - implement method in TileFactory
+require_relative 'tile_setter'
+require_relative 'builder'
+
 module BoardFactory
+  include Builder
+  include TileSetter
+  extend self
 
-  def self.options
-    %w(default custom random)
-  end
-
-  def self.create(type)
+  def create(type)
     case type
-    when 'default'
-      TileFactory.create('default')
-    when 'custom'
-      TileFactory.create('custom')
-    when 'random'
-      TileFactory.create('random')
+    when default
+      TileSetter.default_tiles
+    when custom
+      TileSetter.custom_tiles
+    when random
+      TileSetter.random_tiles
     else
       raise NotImplementedError,
             "#{self} cannot respond to #{type}"

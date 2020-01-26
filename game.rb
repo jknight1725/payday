@@ -185,4 +185,3 @@ class Game
   end
 
 end
-

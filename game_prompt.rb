@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GamePrompt
   def self.roll(name, roll, position)
     "\n#{name} your turn!\n\nYou rolled a #{roll} landing on day #{position}\n"

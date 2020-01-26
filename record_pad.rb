@@ -37,6 +37,10 @@ class RecordPad
     wallet.to_i
   end
 
+  def total
+    savings - loan
+  end
+
   def to_s
     "Bank Statement\nSavings\t#{savings}\nLoan\t#{loan}"
   end

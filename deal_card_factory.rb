@@ -1,16 +1,11 @@
-require_relative 'deal_deck'
 require_relative 'deal_cards'
 module DealCardFactory
+  include DealCards
   extend self
 
-  def create_deal_cards
-    amount = deck_size
+  def create_deal_cards(deck_size)
     cards={}
-    if amount <= 0
-      cards = nil
-    else
-      amount.times { get_deals cards }
-    end
+    deck_size < 1 ? cards = DealCards.cards : deck_size.times { get_deals cards }
     cards
   end
 
@@ -26,8 +21,4 @@ module DealCardFactory
     cards[name.to_sym] = DealCards::Card.new(name:name, cost:cost, value:value, commission: commission)
   end
 
-  def deck_size
-    puts "How many custom deal cards?"
-    gets.to_i
-  end
 end
