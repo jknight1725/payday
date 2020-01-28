@@ -1,6 +1,5 @@
 require_relative 'deal_cards'
 module DealCardFactory
-  include DealCards
   extend self
 
   def create_deal_cards(deck_size)

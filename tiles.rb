@@ -1,7 +1,4 @@
 module Tiles
-  #To add a new tile, def a method with at minimum an effect key, optional keys amount and name
-  # default any args to nil
-  # yield the new method in each
   include Enumerable
   extend self
 
@@ -68,8 +65,6 @@ module Tiles
     { effect: 'payday' }
   end
 
-
-# TODO find common behavior in classes/prompts and make modular
   def set_tile_amount(tile)
     puts "What is the amount/expense of #{tile[:effect]}\n"
     tile[:amount] = gets.to_i

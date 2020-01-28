@@ -34,6 +34,13 @@ class Player
     }
   end
 
+  def to_s
+    "Here is your bank statement for month #{months_played} #{name} \n" \
+    "#{bank}\nWallet:\t#{wallet}\nTotal:\t#{score}\n" \
+    "med insurance:\t#{med_ins}\ncar insurance:\t#{car_ins}\n" \
+    "Deals:\n#{deals.join("\n")}\n"
+  end
+
   def to_h
     {
         name: name,
@@ -60,6 +67,16 @@ class Player
     cash > wallet ? bank_deposit(wallet) : bank_deposit(cash)
   end
 
+  def bank_withdrawal(cash)
+    bank.withdrawal cash
+    self.wallet += cash
+  end
+
+  def bank_deposit(cash)
+    bank.deposit cash
+    self.wallet -= cash
+  end
+
   def move(distance)
     self.position = 0 if position == 31
     position + distance > 31 ? self.position = 31 : self.position += distance
@@ -74,23 +91,6 @@ class Player
 
   def score
     wallet + bank.total
-  end
-
-  def to_s
-    "Here is your bank statement for month #{months_played} #{name} \n" \
-    "#{bank}\nWallet:\t#{wallet}\nTotal:\t#{score}\n" \
-    "med insurance:\t#{med_ins}\ncar insurance:\t#{car_ins}\n" \
-    "Deals:\n#{deals.join("\n")}\n"
-  end
-
-  def bank_withdrawal(cash)
-    bank.withdrawal cash
-    self.wallet += cash
-  end
-
-  def bank_deposit(cash)
-    bank.deposit cash
-    self.wallet -= cash
   end
 
   def process_letter(letter)

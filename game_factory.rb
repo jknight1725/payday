@@ -1,6 +1,6 @@
 require_relative 'game'
 require_relative 'player_factory'
-require_relative 'deal_deck_factory'
+#require_relative 'deal_deck_factory'
 require_relative 'builder'
 # TODO loader class / isolate other behaviors
 module GameFactory
@@ -25,7 +25,7 @@ module GameFactory
     options = {}
     options[:players] = PlayerFactory.create_players
     options[:months] = get_months
-    options[:game_board] = BoardFactory.create(Builder.get_build_for('board'))
+    options[:board] = BoardFactory.create(Builder.get_build_for('board'))
     options[:deal_deck] =  DealDeckFactory.create(Builder.get_build_for('deal deck'))
     options
   end

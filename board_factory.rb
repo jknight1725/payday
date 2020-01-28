@@ -1,19 +1,18 @@
-require_relative 'tile_setter'
+require_relative 'tile_arrangement'
 require_relative 'builder'
 
 module BoardFactory
   include Builder
-  include TileSetter
   extend self
 
   def create(type)
     case type
     when default
-      TileSetter.default_tiles
+      TileArrangement.for(default)
     when custom
-      TileSetter.custom_tiles
+      TileArrangement.for(custom)
     when random
-      TileSetter.random_tiles
+      TileArrangement.for(random)
     else
       raise NotImplementedError,
             "#{self} cannot respond to #{type}"

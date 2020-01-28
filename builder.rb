@@ -1,7 +1,12 @@
 module Builder
+  include Enumerable
   extend self
-  def options
-    %w(default custom random from_file)
+
+  def each
+    yield default
+    yield custom
+    yield random
+    yield from_file
   end
 
   def default
@@ -21,10 +26,9 @@ module Builder
   end
 
   def get_build_for(obj)
+    options = Builder.to_a
     puts "Pick a Build type for #{obj}"
-    options = Builder.options
     options.each_with_index { |opt, index | puts "#{index}\t#{opt}" }
-
     choice = -1
     until (0..options.size).cover? choice
       puts "Pick an option:\t"
