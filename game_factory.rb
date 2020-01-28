@@ -1,6 +1,5 @@
 require_relative 'game'
 require_relative 'player_factory'
-#require_relative 'deal_deck_factory'
 require_relative 'builder'
 # TODO loader class / isolate other behaviors
 module GameFactory

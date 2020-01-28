@@ -1,20 +1,11 @@
 # frozen_string_literal: true
-require_relative 'deal_cards'
 class DealDeck
   attr_reader :cards
   attr_accessor :deck
 
   def initialize(args={})
-    args = defaults.merge args
     @cards = args[:cards]
     @deck = args[:deck]
-  end
-
-  def defaults
-    {
-        cards: DealCards.cards,
-        deck: DealCards.cards.keys
-    }
   end
 
   def to_h
@@ -34,4 +25,5 @@ class DealDeck
     reset_deck if deck.empty?
     cards[card_drawn]
   end
+
 end

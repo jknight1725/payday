@@ -111,6 +111,7 @@ class Game
     mail_deck.draw_card
   end
 
+  # TODO belongs in player class
   def financial_event(args)
     args[:player].wallet -= args[:amount] if args[:type] == negative
     args[:player].wallet += args[:amount] if args[:type] == positive

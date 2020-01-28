@@ -1,5 +1,24 @@
 # frozen_string_literal: true
+require_relative 'builder'
+
 module DealCards
+  include Builder
+  extend self
+
+  def for(type)
+    case type
+    when default
+      DefaultCards.arrangement
+    when custom
+      CustomCards.arrangement
+    when random
+      RandomCards.arrangement
+    else
+      raise NotImplementedError,
+            "#{self} cannot respond to #{type}"
+    end
+  end
+  
   class Card
     attr_reader :name, :cost, :value, :commission
     def initialize(args={})
@@ -25,28 +44,108 @@ module DealCards
       "#{name}\nCost:\t#{cost} Value:\t#{value} Commission:\t#{commission}\n"
     end
   end
+  
+  class CustomCards
+    def self.arrangement
+      custom_cards
+    end
+    
+    def self.custom_cards
+      cards={}
+      amount = deck_size
+      amount < 1 ? cards = DefaultCards.arrangement : amount.times { get_deals cards }
+      cards
+    end
+    
+    def self.get_deals(cards)
+      puts "Enter the name of the deal"
+      name = gets.chomp
+      puts "Enter the cost"
+      cost = gets.to_i
+      puts "Enter the value"
+      value = gets.to_i
+      puts "Enter the commission"
+      commission = gets.to_i
+      cards[name.to_sym] = Card.new(name:name, cost:cost, value:value, commission: commission)
+    end
 
-  def self.cards
-    {
-      Tractor: Card.new(name: 'Tractor', cost: 950, value: 1400, commission: 95),
-      Quick_Food_Franchise: Card.new(name: 'Quick Food Franchise', cost: 700, value: 1400, commission: 70),
-      Stamp_Collection: Card.new(name: 'Stamp Collection', cost: 350, value: 600, commission: 50),
-      Bottle_Collection: Card.new(name: 'Bottle Collection', cost: 200, value: 550, commission: 20),
-      Race_Horse: Card.new(name: 'Share of a Race Horse', cost: 700, value: 1400, commission: 70),
-      Coin_Collection: Card.new(name: 'Coin Collection', cost: 500, value: 900, commission: 50),
-      Sports_Car: Card.new(name: 'Used Sports Car', cost: 800, value: 1200, commission: 80),
-      Vacationland: Card.new(name: 'Two Acre Vacation Home', cost: 1000, value: 2500, commission: 100),
-      Powerboat: Card.new(name: 'Powerboat', cost: 1500, value: 2000, commission: 150),
-      Family_Camper: Card.new(name: 'Family Camper', cost: 1100, value: 1600, commission: 110),
-      John_Smith_Autograph: Card.new(name: "John Smith's Autograph", cost: 200, value: 550, commission: 20),
-      Diamond_Ring: Card.new(name: 'Diamond Ring', cost: 350, value: 600, commission: 35),
-      Furniture: Card.new(name: 'Unclaimed Furniture', cost: 150, value: 400, commission: 30),
-      Copper_Pipe: Card.new(name: '600lbs of Copper Pipe', cost: 300, value: 650, commission: 30),
-      Condo_Share: Card.new(name: 'Share in a Condo', cost: 1500, value: 2500, commission: 100),
-      Antique_Auto: Card.new(name: 'Antique Automobile', cost: 350, value: 600, commission: 50),
-      Mystery_Gift: Card.new(name: 'Mysterious Gift', cost: rand(1..15) * 100,
-                             value: rand(1..30) * 100,
-                             commission: rand(1..10) * 10)
-    }.freeze
+    def self.deck_size
+      puts "How many custom deal cards?"
+      gets.to_i
+    end
   end
+
+  class RandomCards
+    def self.arrangement
+      random_cards
+    end
+
+    def self.random_cards
+      cards={}
+      (1..15).each {|card| cards[card] = random_card }
+      cards
+    end
+
+    def self.random_card
+      return Card.new(
+              name: random_name,
+              cost: random_cost,
+              value: random_value,
+              commission: random_commission
+      )
+    end
+
+    def self.random_name
+      %w(Show\ Pony Coffee\ Shop Electric\ Guitar BitCoin Hunting\ Rifle
+        Exotic\ Puppy Gold\ Locket Alpaca\ Farm Smoothie\ Stand).sample
+    end
+
+    def self.random_cost
+      random_amount(100,1000,100)
+    end
+
+    def self.random_value
+      random_amount(100,2600, 500)
+    end
+
+    def self.random_commission
+      random_amount(10,200,20)
+    end
+
+    def self.random_amount(min, max,step)
+      Range.new(min,max).step(step).to_a.sample
+    end
+  end
+
+  class DefaultCards
+    def self.arrangement
+      default_cards
+    end
+
+    def self.default_cards
+      {
+        1 => Card.new(name: 'Tractor', cost: 950, value: 1400, commission: 95),
+        2 => Card.new(name: 'Quick Food Franchise', cost: 700, value: 1400, commission: 70),
+        3 => Card.new(name: 'Stamp Collection', cost: 350, value: 600, commission: 50),
+        4 => Card.new(name: 'Bottle Collection', cost: 200, value: 550, commission: 20),
+        5 => Card.new(name: 'Share of a Race Horse', cost: 700, value: 1400, commission: 70),
+        6 => Card.new(name: 'Coin Collection', cost: 500, value: 900, commission: 50),
+        7 => Card.new(name: 'Used Sports Car', cost: 800, value: 1200, commission: 80),
+        8 => Card.new(name: 'Two Acre Vacation Home', cost: 1000, value: 2500, commission: 100),
+        9 => Card.new(name: 'Powerboat', cost: 1500, value: 2000, commission: 150),
+        10 => Card.new(name: 'Family Camper', cost: 1100, value: 1600, commission: 110),
+        11 => Card.new(name: "John Smith's Autograph", cost: 200, value: 550, commission: 20),
+        12 => Card.new(name: 'Diamond Ring', cost: 350, value: 600, commission: 35),
+        13 => Card.new(name: 'Unclaimed Furniture', cost: 150, value: 400, commission: 30),
+        14 => Card.new(name: '600lbs of Copper Pipe', cost: 300, value: 650, commission: 30),
+        15 => Card.new(name: 'Share in a Condo', cost: 1500, value: 2500, commission: 100),
+        16 => Card.new(name: 'Antique Automobile', cost: 350, value: 600, commission: 50),
+        17 => Card.new(name: 'Mysterious Gift', cost: rand(1..15)*100,
+                       value: rand(1..30)*100, commission: rand(1..10)*10)
+      }
+    end
+
+  end
+
 end
+
