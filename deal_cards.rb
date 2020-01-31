@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require_relative 'builder'
-
+require_relative 'file_manager'
 module DealCards
   include Builder
   extend self
@@ -13,6 +13,8 @@ module DealCards
       CustomCards.arrangement
     when random
       RandomCards.arrangement
+    when from_file
+      LoadedCards.arrangement
     else
       raise NotImplementedError,
             "#{self} cannot respond to #{type}"
@@ -40,6 +42,15 @@ module DealCards
       }
     end
 
+    def to_h
+      {
+          name: name,
+          cost: cost,
+          value: value,
+          commission: commission
+      }
+    end
+
     def to_s
       "#{name}\nCost:\t#{cost} Value:\t#{value} Commission:\t#{commission}\n"
     end
@@ -53,11 +64,11 @@ module DealCards
     def self.custom_cards
       cards={}
       amount = deck_size
-      amount < 1 ? cards = DefaultCards.arrangement : amount.times { get_deals cards }
+      amount < 1 ? cards = DefaultCards.arrangement : (1..amount).each{|c| get_deals(c, cards) }
       cards
     end
     
-    def self.get_deals(cards)
+    def self.get_deals(index, cards)
       puts "Enter the name of the deal"
       name = gets.chomp
       puts "Enter the cost"
@@ -66,13 +77,35 @@ module DealCards
       value = gets.to_i
       puts "Enter the commission"
       commission = gets.to_i
-      cards[name.to_sym] = Card.new(name:name, cost:cost, value:value, commission: commission)
+      cards[index] = Card.new(name:name, cost:cost, value:value, commission: commission)
     end
 
     def self.deck_size
       puts "How many custom deal cards?"
       gets.to_i
     end
+
+  end
+
+  class LoadedCards
+    def self.arrangement
+      load_cards
+    end
+
+    def self.load_cards
+      cards = FileManager.command('load', 'deal deck')
+      normalize(cards)
+      cards
+    end
+
+    def self.normalize(data)
+      data[:cards] = data[:cards].map{|k,v| [k.to_s.to_i, DealCards::Card.new(v)] }.to_h
+      #data[:deal_deck] = DealDeck.new(cards: data[:deal_deck][:cards], deck: data[:deal_deck][:deck] )
+    end
+
+    # data[:deal_deck][:cards] = data[:deal_deck][:cards].map{|k,v| [k.to_s.to_i, DealCards::Card.new(v)] }.to_h
+    # data[:deal_deck] = DealDeck.new(cards: data[:deal_deck][:cards], deck: data[:deal_deck][:deck] )
+
   end
 
   class RandomCards
@@ -97,15 +130,15 @@ module DealCards
 
     def self.random_name
       %w(Show\ Pony Coffee\ Shop Electric\ Guitar BitCoin Hunting\ Rifle
-        Exotic\ Puppy Gold\ Locket Alpaca\ Farm Smoothie\ Stand).sample
+        Exotic\ Puppy Gold\ Locket Alpaca\ Farm Smoothie\ Stand Season\ Tickets).sample
     end
 
     def self.random_cost
-      random_amount(100,1000,100)
+      random_amount(100,1500,100)
     end
 
     def self.random_value
-      random_amount(100,2600, 500)
+      random_amount(300,3000, 200)
     end
 
     def self.random_commission
@@ -148,4 +181,3 @@ module DealCards
   end
 
 end
-

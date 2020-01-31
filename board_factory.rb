@@ -1,4 +1,5 @@
 require_relative 'tiles'
+require_relative 'file_manager'
 require_relative 'builder'
 module BoardFactory
   include Builder
@@ -12,6 +13,8 @@ module BoardFactory
       CustomBoard.arrangement
     when random
       RandomBoard.arrangement
+    when from_file
+      LoadedBoard.arrangement
     else
       raise NotImplementedError,
             "#{self} cannot respond to #{type}"
@@ -21,7 +24,9 @@ module BoardFactory
   class CustomBoard
 
     def self.arrangement
-      custom_tiles
+      board = custom_tiles
+      save?(board)
+      board
     end
 
     def self.custom_tiles
@@ -46,6 +51,11 @@ module BoardFactory
       Tiles.set_tile_name tile if tile.include? :name
 
       tile
+    end
+
+    def self.save?(board)
+      puts "Press 1 to Save this custom board, any other key to continue"
+      FileManager.command('save', 'board', board) if gets.to_i == 1
     end
   end
 
@@ -76,6 +86,22 @@ module BoardFactory
 
     def self.random_amount
       Range.new(100,1200).step(100).to_a.sample
+    end
+  end
+
+  class LoadedBoard
+    def self.arrangement
+      load_board
+    end
+
+    def self.load_board
+      data = FileManager.command('load', 'board')
+      normalize(data)
+      data
+    end
+
+    def self.normalize(data)
+      data.transform_keys! {|k| k.to_s.to_i}
     end
   end
 

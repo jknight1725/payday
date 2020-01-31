@@ -25,9 +25,9 @@ module Builder
     'load'
   end
 
-  def get_build_for(obj)
-    options = Builder.to_a
+  def build_for(obj)
     puts "Pick a Build type for #{obj}"
+    options = Builder.to_a
     options.each_with_index { |opt, index | puts "#{index}\t#{opt}" }
     choice = -1
     until (0..options.size).cover? choice

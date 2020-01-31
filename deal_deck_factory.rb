@@ -13,14 +13,25 @@ module DealDeckFactory
       DealDeck.new(cards: cards, deck: cards.keys)
     when custom
       cards = DealCards.for(custom)
-      DealDeck.new(cards: cards, deck: cards.keys)
+      deal_deck = DealDeck.new(cards: cards, deck: cards.keys)
+      save? deal_deck
     when random
       cards = DealCards.for(random)
       DealDeck.new(cards: cards, deck: cards.keys)
+    when from_file
+      deal_deck = DealCards.for(from_file)
+      DealDeck.new(cards: deal_deck[:cards], deck: deal_deck[:deck])
     else
       raise NotImplementedError,
             "#{self} cannot respond to #{type}"
     end
   end
 
+  def save?(data)
+    #puts "Press 1 to save this deck, any other key to continue"
+    FileManager.command('save', 'deal deck', data.to_h)
+  end
+
 end
+x = DealDeckFactory.create Builder.from_file
+x

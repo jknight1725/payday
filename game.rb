@@ -4,6 +4,7 @@ require_relative 'deal_deck_factory'
 require_relative 'mail_deck'
 require_relative 'player'
 require_relative 'game_prompt'
+require_relative 'file_manager'
 require 'colorize'
 
 class Game
@@ -34,7 +35,7 @@ class Game
 
   def to_h
     {
-        players: players,
+        players: players.map(&:to_h),
         deal_deck: deal_deck.to_h,
         board: board,
         months: months_to_play,
@@ -52,6 +53,7 @@ class Game
     tile = board[move(player)]
     action(tile, player)
     GamePrompt.end_turn(player.name)
+    save_game
     game_over(player) if player.months_played == months_to_play
   end
 
@@ -73,6 +75,10 @@ class Game
   def results
     puts GamePrompt.results
     score_board.sort_by {|h| h[:score]}.reverse_each {|p| puts "#{p[:name]}\t#{p[:score]}" }
+  end
+
+  def save_game
+    FileManager.command('save', 'game', self.to_h )
   end
 
   # TODO: poker

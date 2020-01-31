@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 class DealDeck
-  attr_reader :cards
-  attr_accessor :deck
+  attr_accessor :cards, :deck
 
   def initialize(args={})
     @cards = args[:cards]
@@ -10,8 +9,8 @@ class DealDeck
 
   def to_h
     {
-        cards: cards,
-        deck: deck
+      cards: self.cards.map{|k,v| [k.to_i, v.to_h]}.to_h,
+      deck: deck
     }
   end
 
@@ -20,9 +19,9 @@ class DealDeck
   end
 
   def draw_card
+    reset_deck if deck.empty?
     card_drawn = deck.sample
     self.deck.delete(card_drawn)
-    reset_deck if deck.empty?
     cards[card_drawn]
   end
 

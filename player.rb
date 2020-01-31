@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# TODO isolate behaviors i.e. banking/processing/confirming into own class
 require_relative 'record_pad'
 require_relative 'player_prompt'
 class Player
@@ -51,7 +50,7 @@ class Player
         months_played: months_played,
         med: med_ins,
         car: car_ins,
-        deals: deals
+        deals: self.deals.map{|d| d.to_h }
     }
   end
 
