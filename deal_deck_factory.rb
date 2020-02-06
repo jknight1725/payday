@@ -33,5 +33,3 @@ module DealDeckFactory
   end
 
 end
-x = DealDeckFactory.create Builder.from_file
-x
