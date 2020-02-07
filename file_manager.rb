@@ -144,5 +144,4 @@ module FileManager
     end
 
   end
-FileManager::FileReader::DealReader.read
 end
